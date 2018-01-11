@@ -10,10 +10,12 @@ all: pipe_lat pipe_thr \
 run:
 	./pipe_lat 100 10000
 	./unix_lat 100 10000
+	./unix_lat 100 10000 1
 	./tcp_lat 100 10000
 	./udp_lat 100 10000
 	./pipe_thr 100 10000
 	./unix_thr 100 10000
+	./unix_thr 100 10000 1
 	./tcp_thr 100 10000
 
 clean:

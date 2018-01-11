@@ -40,6 +40,8 @@
 
 int main(int argc, char *argv[]) {
   int fds[2]; /* the pair of socket descriptors */
+  int dgram_enable = 0;
+  int ret;
   int size;
   char *buf;
   int64_t count, i, delta;
@@ -49,13 +51,17 @@ int main(int argc, char *argv[]) {
   struct timeval start, stop;
 #endif
 
-  if (argc != 3) {
-    printf("usage: unix_thr <message-size> <message-count>\n");
+  if ((argc < 3) | (argc > 4)) {
+    printf("usage: unix_thr <message-size> <roundtrip-count> <dgram-enable(default stream)>\n");
     return 1;
   }
 
   size = atoi(argv[1]);
   count = atol(argv[2]);
+
+  if (argc == 4) {
+    dgram_enable = atol(argv[3]);
+  }
 
   buf = malloc(size);
   if (buf == NULL) {
@@ -65,8 +71,14 @@ int main(int argc, char *argv[]) {
 
   printf("message size: %i octets\n", size);
   printf("message count: %li\n", count);
+  printf("socket_type: %s\n", (dgram_enable ? "SOCK_DGRAM" : "SOCK_STREAM"));
 
-  if (socketpair(AF_UNIX, SOCK_STREAM, 0, fds) == -1) {
+  if (dgram_enable == 1) {
+    ret = socketpair(AF_UNIX, SOCK_DGRAM, 0, fds);
+  } else {
+    ret = socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
+  }
+  if (ret == -1) {
     perror("socketpair");
     return 1;
   }
